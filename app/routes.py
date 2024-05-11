@@ -21,7 +21,8 @@ def get_novels():
 @routes.route('/get-chapters/<int:novel_id>', methods=['GET'])
 def get_chapters(novel_id):
     page_number = request.args.get('page', 1, type=int)
-    pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id), page_number)
+    per_page = 50
+    pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id), page_number, per_page)
     serialized_chapters = serialize_chapters(pagination.items)
 
             # params is page i dont know why the fuck it was not current_page
