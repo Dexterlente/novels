@@ -11,6 +11,7 @@ def serialize_novels(novels_list):
             'image_url': novel.image_url,
             'title': novel.title,
             'genre': novel.genre,
+            'novel_title': novel.novel_new_title,
         }
         serialized_novels.append(serialized_novel)
     return serialized_novels
