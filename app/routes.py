@@ -25,6 +25,10 @@ def get_chapters(novel_id):
     pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id), page_number, per_page)
     serialized_chapters = serialize_chapters(pagination.items)
 
+
+    #TODO
+    # Details of chapters
+
     # sample http://localhost:5000/get-chapters/100?page=1
 
     return jsonify({
