@@ -16,6 +16,21 @@ def serialize_novels(novels_list):
         serialized_novels.append(serialized_novel)
     return serialized_novels
 
+def serialize_novels_genre(novel_list_genre):
+
+    serialize_novels_genres = []
+
+    for novels in novel_list_genre:
+
+        serialize_novels_genre = {
+            'novel_id': novels.novel_id,
+            'image_url': novels.image_url,
+            'title': novels.title,
+            'genre': novels.genre,
+            'novel_title': novels.novel_new_title,
+        }
+        serialize_novels_genres.append(serialize_novels_genre)
+    return serialize_novels_genres
 
 
 def serialize_chapters(chapters_list, novel_id=None):
