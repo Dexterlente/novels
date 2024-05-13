@@ -50,3 +50,23 @@ def serialize_chapters(chapters_list, novel_id=None):
 
     return serialized_chapters
 
+def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
+    """
+    Serialize details of a specific chapter into a dictionary representation.
+    If novel_id and chapter_id are provided, filter the chapter based on these parameters.
+    """
+    if novel_id is not None and chapter.novel_id != novel_id:
+        return None  # Chapter does not belong to the specified novel
+
+    if chapter_id is not None and chapter.chapter_id != chapter_id:
+        return None  # Chapter does not have the specified chapter_id
+
+    serialized_chapter = {
+        'chapter_id': chapter.chapter_id,
+        'novel_id': chapter.novel_id,
+        'timestamp': chapter.timestamp,
+        'title': chapter.title,
+        'content': chapter.content,
+    }
+
+    return serialized_chapter

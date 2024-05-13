@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.models import novels, chapters
 from app.pagination import paginate_query
-from app.views import serialize_chapters, serialize_novels
+from app.views import serialize_chapter_detail, serialize_chapters, serialize_novels
 
 routes = Blueprint('views', __name__)
 
@@ -25,10 +25,6 @@ def get_chapters(novel_id):
     pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id), page_number, per_page)
     serialized_chapters = serialize_chapters(pagination.items)
 
-
-    #TODO
-    # Details of chapters
-
     # sample http://localhost:5000/get-chapters/100?page=1
 
     return jsonify({
@@ -38,3 +34,11 @@ def get_chapters(novel_id):
         'total_items': pagination.total
     })
 
+@routes.route('/get-chapters/<int:novel_id>/<int:chapter_id>', methods=['GET'])
+def get_chapter_details(novel_id, chapter_id):
+    chapter = chapters.query.filter_by(novel_id=novel_id, chapter_id=chapter_id).first()
+    if chapter:
+        serialized_chapter = serialize_chapter_detail(chapter)
+        return jsonify(serialized_chapter)  
+    else:
+         return jsonify({'error': 'Chapter not found'}), 404
