@@ -1,13 +1,12 @@
-import csv
 import os
 import asyncio
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.scrappy import create_connection
 import aiohttp
 from bs4 import BeautifulSoup
-import subprocess
 from sqlalchemy import text
 
+# TODO IMAGE EXTRACTOR AND USING COLUMN TO TRACK INSTREAD
 custom_filename = ""
 stop_flag = False 
 
@@ -18,16 +17,6 @@ async def load_processed_filenames(filename):
             for line in file:
                 filenames.add(line.strip())
     return filenames
-
-# async def create_csv(filename, directory):
-#     fieldnames = ['Title', 'Content']
-#     if not os.path.exists(directory):
-#         os.makedirs(directory)
-#     filepath = os.path.join(directory, filename)
-#     if not os.path.exists(filepath):
-#         with open(filepath, 'w', newline='', encoding='utf-8') as csvfile:
-#             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-#             writer.writeheader()
 
 
 async def scrape_novel(session, url, processed_filenames, filename, txtdirectory):
