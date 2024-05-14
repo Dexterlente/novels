@@ -1,5 +1,6 @@
 import os
 import asyncio
+from app.models import novels
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.scrappy import create_connection
 import aiohttp
@@ -16,7 +17,15 @@ async def load_processed_filenames(filename):
         with open(filename, 'r') as file:
             for line in file:
                 filenames.add(line.strip())
-    return filenames
+    return 
+
+# async def load_processed_filenames(session):
+#     filenames = set()
+#     # Assuming `session` is a SQLAlchemy session object
+#     results = session.query(novels.title).all()
+#     for result in results:
+#         filenames.add(result.column_name.strip())
+#     return filenames
 
 
 async def scrape_novel(session, url, processed_filenames, filename, txtdirectory):
