@@ -1,9 +1,8 @@
-from . import app
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy(app)
+from app.database import db
 
 class novels(db.Model):
+    __tablename__ = 'novels'
+
     novel_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     image_url = db.Column(db.String(255))
     title = db.Column(db.String(255))
@@ -15,6 +14,8 @@ class novels(db.Model):
         return '<Novel {}>'.format(self.title)
 
 class chapters(db.Model):
+    __tablename__ = 'chapters'
+
     chapter_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     novel_id = db.Column(db.Integer, db.ForeignKey('novels.novel_id'), nullable=False)
     title = db.Column(db.Text)
