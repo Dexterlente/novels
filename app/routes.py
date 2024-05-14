@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 from app.logic.utils import get_chapter_details_logic, get_chapters_logic, get_novels_by_genre_logic, get_novels_logic
-from app.models import novels, chapters
 from app.pagination import paginate_query
 from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre
 
