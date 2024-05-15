@@ -40,6 +40,8 @@ async def scrape_novel(session, url, novel_title, conn, genre_int):
                     await insert_novel(conn, novel_title, genre_int)
 
                 await increment_last_chapter(conn, novel_title)
+                conn.commit()
+                
                 chapter_number += 1
 
 async def extract_content(soup):
