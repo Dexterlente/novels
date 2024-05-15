@@ -8,6 +8,7 @@ class novels(db.Model):
     title = db.Column(db.String(255))
     novel_new_title = db.Column(db.String(255))
     genre = db.Column(db.Integer)
+    last_chapter = db.Column(db.Integer)
     chapters = db.relationship('chapters', backref='novel', lazy=True)
 
     def __repr__(self):
