@@ -1,6 +1,7 @@
 import os
 import asyncio
 from app.models import novels
+from app.scrapper.dbinsertion import insert_chapters_logic, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.scrappy import create_connection
 import aiohttp
@@ -8,37 +9,37 @@ from bs4 import BeautifulSoup
 from sqlalchemy import text
 
 # TODO IMAGE EXTRACTOR AND USING COLUMN TO TRACK INSTREAD
-custom_filename = ""
-stop_flag = False 
 
-async def load_processed_filenames(filename):
-    filenames = set()
-    if os.path.exists(filename):
-        with open(filename, 'r') as file:
-            for line in file:
-                filenames.add(line.strip())
-    return 
-
-# async def load_processed_filenames(session):
-#     filenames = set()
-#     # Assuming `session` is a SQLAlchemy session object
-#     results = session.query(novels.title).all()
-#     for result in results:
-#         filenames.add(result.column_name.strip())
-#     return filenames
-
-
-async def scrape_novel(session, url, processed_filenames, filename, txtdirectory):
+# TODO FOR TEST
+async def novel_tracker(conn, novel_title):
     try:
-        with open(os.path.join(txtdirectory,f"{filename}.txt"), 'r') as file:
-            last_processed_chapter = int(file.read())
-    except FileNotFoundError:
-        last_processed_chapter = 0
+        result = conn.execute(
+                text(f"SELECT *
+                        FROM novels
+                        WHERE title IS NULL OR title = '{novel_title}'
+                        OR last_chapter IS NULL OR last_chapter = 0;"))
+        row = result.fetchone()
+        if row:
+            last_chapter = row[0]
+            if last_chapter is not None:
+                return last_chapter  
+            else:
+                return 0 
+        else:
+            return 0
+    except Exception as e:
+        print("Error executing query:", e)
+        return None 
+
+async def scrape_novel(session, url, novel_title):
+    # try:
+    #     with open(os.path.join(txtdirectory,f"{filename}.txt"), 'r') as file:
+    #         last_processed_chapter = int(file.read())
+    # except FileNotFoundError:
+    #     last_processed_chapter = 0
 
     chapter_number = last_processed_chapter + 1 
     while True:
-        if stop_flag:
-            break
         base_url = f"{url}chapter-{chapter_number}/"
         async with session.get(base_url) as response:
             if response.status != 200:
@@ -60,35 +61,22 @@ async def scrape_novel(session, url, processed_filenames, filename, txtdirectory
                             print("No more chapters found. Exiting...")
                             break
                 yield title, content
-                processed_filenames.add(title)
                 # Create directories if they don't exist
-                os.makedirs(os.path.dirname(os.path.join(txtdirectory, f"{filename}.txt")), exist_ok=True)
+                # os.makedirs(os.path.dirname(os.path.join(txtdirectory, f"{filename}.txt")), exist_ok=True)
 
-                with open(os.path.join(txtdirectory, f"{filename}.txt"), 'w') as file:
-                    file.write(str(chapter_number)) 
+                # with open(os.path.join(txtdirectory, f"{filename}.txt"), 'w') as file:
+                #     file.write(str(chapter_number)) 
 
-                chapter_number += 1
+                # chapter_number += 1
 
 
 async def extract_content(soup):
     title, content = element_extractor(soup)
     return title, content
 
-async def insert_novel(conn, novel_title, genre):
-    try:
-        existing_novel_query = text(f"SELECT novel_id FROM novels WHERE title = :title;")
-        result = conn.execute(existing_novel_query, {"title": novel_title})
-        existing_novel = result.fetchone()
-        if existing_novel:
-            print(f"Novel '{novel_title}' already exists. Skipping insertion.")
-            return
-        conn.execute(
-            text(f"INSERT INTO novels (title, genre) VALUES (:novel_title, :genre);"),
-            {"novel_title": novel_title, 'genre': genre}
-        )
-        print(f"Novel '{novel_title}' inserted into novels table.")
-    except Exception as e:
-        print("Error inserting novel data:", e)
+async def insert_novel(conn, novel_title, genre_int):
+    novel_insertion_logic(conn, novel_title, genre_int)
+    print("novel insert sucess")
 
 async def fetch_novel_id(conn, novel_title):
     try:
@@ -103,24 +91,17 @@ async def fetch_novel_id(conn, novel_title):
         print("Error fetching novel data:", e)
         return None
     
-async def save_to_database(conn, novel_id,chapter_title, chapter_content):
-        conn.execute(
-            text(f"INSERT INTO chapters (novel_id, title, content) VALUES (:novel_id, :chapter_title, :chapter_content);"),
-            {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
-        )
-        print(f"Chapter '{chapter_title}' inserted into chapters table.")
+async def insert_chapters(conn, novel_id, chapter_title, chapter_content):
+    insert_chapters_logic(conn, novel_id, chapter_title, chapter_content)
+    print("Inserted chapters")
 
 
-async def crawl_page(session, base_url, page_number, processed_filenames, txtdirectory, genre):
-    global stop_flag
-    if stop_flag:
-        return False
+async def crawl_page(session, base_url, page_number, genre_int):
     url = f"{base_url}{page_number}/"
     print(url)
     async with session.get(url) as response:
         if response.status == 404:
             print("404 Not Found. No more pages to crawl. Exiting...")
-            # stop_flag = True
             return True  
         if response.status != 200:
             print(f"Page {page_number} not found. Exiting...")
@@ -138,47 +119,43 @@ async def crawl_page(session, base_url, page_number, processed_filenames, txtdir
             if text and url:
                 filename = f"{text.replace(' ', '')}"
                 novel_title = text
-                if filename in processed_filenames:
-                    print("Skipping duplicate. Title and filename already saved.")
-                    continue
                 if text in unique_links:
                     print("Skipping duplicate title:", text)
                     continue
                 unique_links.add(text)
-                processed_filenames.add(filename)
                 conn = create_connection()
-                insert_novel(conn, novel_title, genre)
-                async for title_, content in scrape_novel(session, url, processed_filenames, custom_filename, txtdirectory):
-                    # await create_csv(filename, directory)
+                insert_novel(conn, novel_title, genre_int)
+                async for title, content in scrape_novel(session, url, novel_title):
                     novel_id = await fetch_novel_id(conn, novel_title)
-                    await save_to_database(conn, novel_id, title_, content)
+                    await insert_chapters(conn, novel_id, title, content)
     
-    return False                    
+async def crawl_webpage(base_url, genre_int, start_page=1):
 
-async def crawl_webpage(base_url, genre, start_page=1):
-    global stop_flag
-    global custom_filename
-
-    genre = [1,2,3,4,5,6]
-    processed_filenames = await load_processed_filenames(custom_filename)
-    root_work_dirs = "/home/dexter/Desktop/scrape"
-    txtdirectory = os.path.join(root_work_dirs, f'txtdirs/{genre.lower()}')
     async with aiohttp.ClientSession() as session:
         page_number = start_page
         while True:
-                if await crawl_page(session, base_url, page_number, processed_filenames, txtdirectory, genre):        
+                if await crawl_page(session, base_url, page_number, genre_int):        
                     break
                 page_number += 1
             
 
 async def main():
-    global custom_filename
+    genre_mapping = {
+        "action": 1,
+        "comedy": 2,
+        "adventure": 3,
+        "drama": 4,
+        "eastern": 5,
+        "fantasy": 6,
+        "harem": 7
+    }
     genres = ["action","comedy", "adventure", "drama", "eastern", "fantasy", "harem"]
     start_index = genres.index("action") 
     for genre in genres[start_index:]:
+        genre_int = genre_mapping.get(genre)
         base_url = f"https://boxnovel.com/manga-genre/{genre}/page/"
         print(f"Crawling genre: {genre}")
-        await crawl_webpage(base_url, genre, start_page=1)
+        await crawl_webpage(base_url, genre_int)
    
         start_index += 1
 if __name__ == "__main__":

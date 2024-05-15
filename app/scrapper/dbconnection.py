@@ -9,7 +9,8 @@ def create_connection():
     port = 5432
     try:
         engine = create_engine(f'postgresql://{user}:{password}@{host}:{port}/{dbname}')
-        conn = engine.connect() 
+        conn = engine.connect()
+
         print("Connection to PostgreSQL successful!")
         return engine, conn 
     except Exception as e:
