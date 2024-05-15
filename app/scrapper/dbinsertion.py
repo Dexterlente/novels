@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-async def novel_insertion_logic(conn, novel_title, genre_int):   
+async def novel_insertion_logic(conn, novel_title, genre_int, image_url):   
     try:
         existing_novel_query = text(f"SELECT novel_id FROM novels WHERE title = :title;")
         result = conn.execute(existing_novel_query, {"title": novel_title})
@@ -9,8 +9,8 @@ async def novel_insertion_logic(conn, novel_title, genre_int):
             print(f"Novel '{novel_title}' already exists. Skipping insertion.")
             return
         conn.execute(
-            text(f"INSERT INTO novels (title, genre) VALUES (:novel_title, :genre);"),
-            {"novel_title": novel_title, 'genre': genre_int}
+            text(f"INSERT INTO novels (title, genre, image_url) VALUES (:novel_title, :genre, :image_url);"),
+            {"novel_title": novel_title, 'genre': genre_int, 'image_url': image_url}
         )
         print(f"Novel '{novel_title}' inserted into novels table.")
     except Exception as e:

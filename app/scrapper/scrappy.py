@@ -9,7 +9,7 @@ from sqlalchemy import text
 
 from app.scrapper.tracker import novel_tracker
 
-async def scrape_novel(session, url, novel_title, conn, genre_int):
+async def scrape_novel(session, url, novel_title, conn, genre_int, image_url):
     last_chapter = await novel_tracker(conn, novel_title)
   
     chapter_number = (last_chapter or 0) + 1 
@@ -37,7 +37,7 @@ async def scrape_novel(session, url, novel_title, conn, genre_int):
                 yield title, content
 
                 if title is None:
-                    await insert_novel(conn, novel_title, genre_int)
+                    await insert_novel(conn, novel_title, genre_int, image_url)
 
                 await increment_last_chapter(conn, novel_title)
                 
@@ -47,8 +47,8 @@ async def extract_content(soup):
     title, content = await element_extractor(soup)
     return title, content
 
-async def insert_novel(conn, novel_title, genre_int):
-    await novel_insertion_logic(conn, novel_title, genre_int)
+async def insert_novel(conn, novel_title, genre_int, image_url):
+    await novel_insertion_logic(conn, novel_title, genre_int, image_url)
     conn.commit()
     print("novel insert sucess")
 
@@ -89,21 +89,21 @@ async def crawl_page(session, base_url, page_number, genre_int):
                 image_url = img_tag['data-src']
             text = link.get_text(strip=True)
             url = link.get('href')
-            # if text and url:
-            #     novel_title = text
-            #     if text in unique_links:
-            #         print("Skipping duplicate title:", text)
-            #         continue
-            #     unique_links.add(text)
-            #     engine, conn = create_connection()
-            #     await insert_novel(conn, novel_title, genre_int)
-            #     conn.commit()
+            if text and url:
+                novel_title = text
+                if text in unique_links:
+                    print("Skipping duplicate title:", text)
+                    continue
+                unique_links.add(text)
+                engine, conn = create_connection()
+                await insert_novel(conn, novel_title, genre_int , image_url)
+                conn.commit()
 
-            #     async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
-            #         novel_id = await fetch_novel_id(conn, novel_title)
-            #         await insert_chapters(conn, novel_id, title, content)
-            #         conn.commit()
-            #     conn.close()
+                async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int, image_url):
+                    novel_id = await fetch_novel_id(conn, novel_title)
+                    await insert_chapters(conn, novel_id, title, content)
+                    conn.commit()
+                conn.close()
     
 async def crawl_webpage(base_url, genre_int, start_page=1):
 
