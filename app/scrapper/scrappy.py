@@ -84,24 +84,26 @@ async def crawl_page(session, base_url, page_number, genre_int):
                         and len(link.get('href', '').split('/novel/')[1]) > 0]
         unique_links = set()
         for link in filtered_links:
+            img_tag = link.find('img')
+            if img_tag:
+                image_url = img_tag['data-src']
             text = link.get_text(strip=True)
             url = link.get('href')
-            if text and url:
-                # filename = f"{text.replace(' ', '')}"
-                novel_title = text
-                if text in unique_links:
-                    print("Skipping duplicate title:", text)
-                    continue
-                unique_links.add(text)
-                engine, conn = create_connection()
-                await insert_novel(conn, novel_title, genre_int)
-                conn.commit()
- 
-                async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
-                    novel_id = await fetch_novel_id(conn, novel_title)
-                    await insert_chapters(conn, novel_id, title, content)
-                    conn.commit()
-                conn.close()
+            # if text and url:
+            #     novel_title = text
+            #     if text in unique_links:
+            #         print("Skipping duplicate title:", text)
+            #         continue
+            #     unique_links.add(text)
+            #     engine, conn = create_connection()
+            #     await insert_novel(conn, novel_title, genre_int)
+            #     conn.commit()
+
+            #     async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
+            #         novel_id = await fetch_novel_id(conn, novel_title)
+            #         await insert_chapters(conn, novel_id, title, content)
+            #         conn.commit()
+            #     conn.close()
     
 async def crawl_webpage(base_url, genre_int, start_page=1):
 
