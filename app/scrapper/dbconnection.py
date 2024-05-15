@@ -1,8 +1,7 @@
 from sqlalchemy import create_engine
 
-
 def create_connection():
-    dbname = "noveldb"
+    dbname = "novelserver"
     user = "dexter"
     password = "dexter"
     host = "localhost"

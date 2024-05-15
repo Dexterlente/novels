@@ -2,19 +2,17 @@ import asyncio
 from app.scrapper.dbinsertion import insert_chapters_logic, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.incrementquery import increment_last_chapter
-from app.scrapper.scrappy import create_connection
+from app.scrapper.dbconnection import create_connection
 import aiohttp
 from bs4 import BeautifulSoup
 from sqlalchemy import text
 
 from app.scrapper.tracker import novel_tracker
 
-
-# TODO FOR TEST
-
 async def scrape_novel(session, url, novel_title, conn, genre_int):
-    last_processed_chapter = novel_tracker(conn, novel_title)
-    chapter_number = last_processed_chapter + 1 
+    last_chapter = await novel_tracker(conn, novel_title)
+  
+    chapter_number = (last_chapter or 0) + 1 
     while True:
         base_url = f"{url}chapter-{chapter_number}/"
         async with session.get(base_url) as response:
@@ -39,16 +37,18 @@ async def scrape_novel(session, url, novel_title, conn, genre_int):
                 yield title, content
 
                 if title is None:
-                    novel_insertion_logic(conn, novel_title, genre_int)
+                    await insert_novel(conn, novel_title, genre_int)
 
-                increment_last_chapter(conn)
+                await increment_last_chapter(conn, novel_title)
+                chapter_number += 1
 
 async def extract_content(soup):
-    title, content = element_extractor(soup)
+    title, content = await element_extractor(soup)
     return title, content
 
 async def insert_novel(conn, novel_title, genre_int):
-    novel_insertion_logic(conn, novel_title, genre_int)
+    await novel_insertion_logic(conn, novel_title, genre_int)
+    conn.commit()
     print("novel insert sucess")
 
 async def fetch_novel_id(conn, novel_title):
@@ -66,6 +66,7 @@ async def fetch_novel_id(conn, novel_title):
     
 async def insert_chapters(conn, novel_id, chapter_title, chapter_content):
     insert_chapters_logic(conn, novel_id, chapter_title, chapter_content)
+    insert_novel
     print("Inserted chapters")
 
 
@@ -90,17 +91,20 @@ async def crawl_page(session, base_url, page_number, genre_int):
             text = link.get_text(strip=True)
             url = link.get('href')
             if text and url:
-                filename = f"{text.replace(' ', '')}"
+                # filename = f"{text.replace(' ', '')}"
                 novel_title = text
                 if text in unique_links:
                     print("Skipping duplicate title:", text)
                     continue
                 unique_links.add(text)
-                conn = create_connection()
-                insert_novel(conn, novel_title, genre_int)
+                engine, conn = create_connection()
+                await insert_novel(conn, novel_title, genre_int)
+ 
                 async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
                     novel_id = await fetch_novel_id(conn, novel_title)
                     await insert_chapters(conn, novel_id, title, content)
+          
+                conn.close()
     
 async def crawl_webpage(base_url, genre_int, start_page=1):
 

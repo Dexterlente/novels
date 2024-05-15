@@ -1,6 +1,8 @@
+import asyncio
 from flask import Blueprint, jsonify, request
 from app.logic.utils import get_chapter_details_logic, get_chapters_logic, get_novels_by_genre_logic, get_novels_logic
 from app.pagination import paginate_query
+from app.scrapper.scrappy import main
 from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre
 
 routes = Blueprint('views', __name__)
@@ -24,3 +26,8 @@ def get_chapters(novel_id):
 def get_chapter_details(novel_id, chapter_id):
     result = get_chapter_details_logic(novel_id, chapter_id)
     return jsonify(result)
+
+@routes.route('/start-scraping')
+def start_scraping():
+    asyncio.run(main())
+    return 'Scraping process initiated.'
