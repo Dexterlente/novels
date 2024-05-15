@@ -1,5 +1,5 @@
 import asyncio
-from app.scrapper.dbinsertion import insert_chapters_logic, novel_insertion_logic
+from app.scrapper.dbinsertion import insert_chapters, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.incrementquery import increment_last_chapter
 from app.scrapper.dbconnection import create_connection
@@ -40,7 +40,6 @@ async def scrape_novel(session, url, novel_title, conn, genre_int):
                     await insert_novel(conn, novel_title, genre_int)
 
                 await increment_last_chapter(conn, novel_title)
-                conn.commit()
                 
                 chapter_number += 1
 
@@ -65,11 +64,6 @@ async def fetch_novel_id(conn, novel_title):
     except Exception as e:
         print("Error fetching novel data:", e)
         return None
-    
-async def insert_chapters(conn, novel_id, chapter_title, chapter_content):
-    insert_chapters_logic(conn, novel_id, chapter_title, chapter_content)
-    insert_novel
-    print("Inserted chapters")
 
 
 async def crawl_page(session, base_url, page_number, genre_int):
@@ -101,11 +95,12 @@ async def crawl_page(session, base_url, page_number, genre_int):
                 unique_links.add(text)
                 engine, conn = create_connection()
                 await insert_novel(conn, novel_title, genre_int)
+                conn.commit()
  
                 async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
                     novel_id = await fetch_novel_id(conn, novel_title)
                     await insert_chapters(conn, novel_id, title, content)
-          
+                    conn.commit()
                 conn.close()
     
 async def crawl_webpage(base_url, genre_int, start_page=1):

@@ -16,7 +16,7 @@ async def novel_insertion_logic(conn, novel_title, genre_int):
     except Exception as e:
         print("Error inserting novel data:", e)
 
-async def insert_chapters_logic(conn, novel_id,chapter_title, chapter_content):
+async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
         conn.execute(
             text(f"INSERT INTO chapters (novel_id, title, content) VALUES (:novel_id, :chapter_title, :chapter_content);"),
             {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
