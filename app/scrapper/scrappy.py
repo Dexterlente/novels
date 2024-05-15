@@ -1,43 +1,19 @@
-import os
 import asyncio
-from app.models import novels
 from app.scrapper.dbinsertion import insert_chapters_logic, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
+from app.scrapper.incrementquery import increment_last_chapter
 from app.scrapper.scrappy import create_connection
 import aiohttp
 from bs4 import BeautifulSoup
 from sqlalchemy import text
 
-# TODO IMAGE EXTRACTOR AND USING COLUMN TO TRACK INSTREAD
+from app.scrapper.tracker import novel_tracker
+
 
 # TODO FOR TEST
-async def novel_tracker(conn, novel_title):
-    try:
-        result = conn.execute(
-                text(f"SELECT *
-                        FROM novels
-                        WHERE title IS NULL OR title = '{novel_title}'
-                        OR last_chapter IS NULL OR last_chapter = 0;"))
-        row = result.fetchone()
-        if row:
-            last_chapter = row[0]
-            if last_chapter is not None:
-                return last_chapter  
-            else:
-                return 0 
-        else:
-            return 0
-    except Exception as e:
-        print("Error executing query:", e)
-        return None 
 
-async def scrape_novel(session, url, novel_title):
-    # try:
-    #     with open(os.path.join(txtdirectory,f"{filename}.txt"), 'r') as file:
-    #         last_processed_chapter = int(file.read())
-    # except FileNotFoundError:
-    #     last_processed_chapter = 0
-
+async def scrape_novel(session, url, novel_title, conn, genre_int):
+    last_processed_chapter = novel_tracker(conn, novel_title)
     chapter_number = last_processed_chapter + 1 
     while True:
         base_url = f"{url}chapter-{chapter_number}/"
@@ -61,14 +37,11 @@ async def scrape_novel(session, url, novel_title):
                             print("No more chapters found. Exiting...")
                             break
                 yield title, content
-                # Create directories if they don't exist
-                # os.makedirs(os.path.dirname(os.path.join(txtdirectory, f"{filename}.txt")), exist_ok=True)
 
-                # with open(os.path.join(txtdirectory, f"{filename}.txt"), 'w') as file:
-                #     file.write(str(chapter_number)) 
+                if title is None:
+                    novel_insertion_logic(conn, novel_title, genre_int)
 
-                # chapter_number += 1
-
+                increment_last_chapter(conn)
 
 async def extract_content(soup):
     title, content = element_extractor(soup)
@@ -125,7 +98,7 @@ async def crawl_page(session, base_url, page_number, genre_int):
                 unique_links.add(text)
                 conn = create_connection()
                 insert_novel(conn, novel_title, genre_int)
-                async for title, content in scrape_novel(session, url, novel_title):
+                async for title, content in scrape_novel(session, url, novel_title, conn ,genre_int):
                     novel_id = await fetch_novel_id(conn, novel_title)
                     await insert_chapters(conn, novel_id, title, content)
     
