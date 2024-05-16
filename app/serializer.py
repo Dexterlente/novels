@@ -11,7 +11,6 @@ def serialize_novels(novels_list):
             'image_url': novel.image_url,
             'title': novel.title,
             'genre': novel.genre,
-            'novel_title': novel.novel_new_title,
         }
         serialized_novels.append(serialized_novel)
     return serialized_novels
@@ -27,7 +26,6 @@ def serialize_novels_genre(novel_list_genre):
             'image_url': novels.image_url,
             'title': novels.title,
             'genre': novels.genre,
-            'novel_title': novels.novel_new_title,
         }
         serialize_novels_genres.append(serialize_novels_genre)
     return serialize_novels_genres
