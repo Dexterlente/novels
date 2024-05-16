@@ -136,3 +136,8 @@ async def main():
         start_index += 1
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+
+    # // Override the debugger function to prevent it from stopping execution
+        # window.debugger = function() {};
