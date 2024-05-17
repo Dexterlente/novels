@@ -33,5 +33,15 @@ async def element_extractor(soup):
             if first_element:
                 title = first_element.get_text(strip=True)
                 content = "\n".join([content.get_text(strip=True) for content in chapter_contents])
-    print(title)
+
+    elif soup.find(class_='text-left'):
+        chapter_contents = soup.find_all(class_='text-left')
+        paragraphs = []
+        for post in chapter_contents:
+            for p in post.find_all('p'):
+                paragraphs.append(p.get_text(strip=True))
+        if paragraphs:
+            title = paragraphs[0]
+            content = "\n".join(paragraphs[1:]) if len(paragraphs) > 1 else "Content not found"
+
     return title, content
