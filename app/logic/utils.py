@@ -3,7 +3,7 @@ from flask import request
 
 from app.models import chapters, novels
 from app.pagination import paginate_query
-from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre
+from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre, serialized_novels_detail
 
 
 def get_novels_logic():
@@ -29,6 +29,16 @@ def get_novels_by_genre_logic(genre):
         'current_page': pagination.page,
         'total_items': pagination.total
     }
+
+
+def get_novels_by_details_logic(novel_id):
+    novel = novels.query.filter_by(novel_id=novel_id).first()
+    if novel:
+        serialized_novel = serialized_novels_detail(novel)
+        return serialized_novel
+    else:
+         return {'error': 'novel not found'}, 404
+
 
 def get_chapters_logic(novel_id):
     page_number = request.args.get('page', 1, type=int)

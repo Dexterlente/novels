@@ -1,14 +1,24 @@
 
+def process_image_url(url):
+        if url.endswith("-110x150.jpg"):
+            return url.replace("-110x150.jpg", ".jpg")
+        elif url.endswith("-110x150.jpeg"):
+            return url.replace("-110x150.jpeg", ".jpeg")
+        return url
+
 def serialize_novels(novels_list):
     """
     Serialize a list of novel objects into a list of dictionary representations.
     """
     serialized_novels = []
+
     for novel in novels_list:
+        processed_image_url = process_image_url(novel.image_url)
 
         serialized_novel = {
             'novel_id': novel.novel_id,
             'image_url': novel.image_url,
+            'image_url_cover': processed_image_url,
             'title': novel.title,
             'genre': novel.genre,
         }
@@ -20,15 +30,31 @@ def serialize_novels_genre(novel_list_genre):
     serialize_novels_genres = []
 
     for novels in novel_list_genre:
+        processed_image_url = process_image_url(novels.image_url)
 
         serialize_novels_genre = {
             'novel_id': novels.novel_id,
             'image_url': novels.image_url,
+            'image_url_cover': processed_image_url,
             'title': novels.title,
             'genre': novels.genre,
         }
         serialize_novels_genres.append(serialize_novels_genre)
     return serialize_novels_genres
+
+def serialized_novels_detail(novel, novel_id=None):
+
+    processed_image_url = process_image_url(novel.image_url)
+    serialized_novel = {
+        'novel_id': novel.novel_id,
+        'image_url': novel.image_url,
+        'image_url_cover': processed_image_url,
+        'title': novel.title,
+        'genre': novel.genre,
+    }
+
+    return serialized_novel
+
 
 
 def serialize_chapters(chapters_list, novel_id=None):
