@@ -126,14 +126,17 @@ async def main():
         "harem": 7
     }
     genres = ["action","comedy", "adventure", "drama", "eastern", "fantasy", "harem"]
-    start_index = genres.index("action") 
+    start_index = genres.index("comedy") 
     for genre in genres[start_index:]:
         genre_int = genre_mapping.get(genre)
         base_url = f"https://boxnovel.com/manga-genre/{genre}/page/"
         print(f"Crawling genre: {genre}")
-        await crawl_webpage(base_url, genre_int)
-   
-        start_index += 1
+        try:
+            await crawl_webpage(base_url, genre_int)
+        except Exception as e:
+            print(f"An error occurred while crawling {genre}: {e}")
+            continue
+        # start_index += 1
 if __name__ == "__main__":
     asyncio.run(main())
 
