@@ -109,11 +109,15 @@ async def crawl_webpage(base_url, genre_int, start_page=1):
 
     async with aiohttp.ClientSession() as session:
         page_number = start_page
+        visited_pages = set()
         while True:
-                if await crawl_page(session, base_url, page_number, genre_int):        
-                    break
-                page_number += 1
-            
+            if page_number in visited_pages:
+                break
+            visited_pages.add(page_number)
+            if await crawl_page(session, base_url, page_number, genre_int):        
+                break
+            page_number += 1
+        
 
 async def main():
     genre_mapping = {
@@ -135,8 +139,7 @@ async def main():
             await crawl_webpage(base_url, genre_int)
         except Exception as e:
             print(f"An error occurred while crawling {genre}: {e}")
-            continue
-        # start_index += 1
+
 if __name__ == "__main__":
     asyncio.run(main())
 
