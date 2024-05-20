@@ -14,7 +14,7 @@ async def scrape_novel(session, url, novel_title, conn, genre_int, image_url):
     last_chapter = await novel_tracker(conn, novel_title)
     synopsis = await scrape_summary(session, url)
 
-    insert_synopsis(conn, synopsis, novel_title )
+    await insert_synopsis(conn, synopsis, novel_title )
 
     chapter_number = (last_chapter or 0) + 1 
     while True:
