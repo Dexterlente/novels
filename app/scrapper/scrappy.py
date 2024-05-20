@@ -1,6 +1,7 @@
 import asyncio
 from app.scrapper.dbinsertion import fetch_novel_id, insert_chapters, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
+from app.scrapper.extracsynosis import scrape_summary
 from app.scrapper.incrementquery import increment_last_chapter
 from app.scrapper.dbconnection import create_connection
 import aiohttp
@@ -9,20 +10,12 @@ from sqlalchemy import text
 
 from app.scrapper.tracker import novel_tracker
 
-# async def scrape_synopsis(session, url):
-#         async with session.get(url) as response:
-#             soup = BeautifulSoup(await response.text(), 'html.parser')
-#             summary = soup.find_all(class_='summary__content')
-#             if summary:
-#                 for post in summary:
-#                     for synopsis in post.find_all('p'):
-#                         return(synopsis) 
-
 async def scrape_novel(session, url, novel_title, conn, genre_int, image_url):
     last_chapter = await novel_tracker(conn, novel_title)
-    # synopsis = await scrape_synopsis(session, url)
-    # print("ss",synopsis, "")
-  
+    synopsis = await scrape_summary(session, url)
+    print("ss",synopsis, "")
+#   TODO insertion 
+
     chapter_number = (last_chapter or 0) + 1 
     while True:
         base_url = f"{url}chapter-{chapter_number}/"
