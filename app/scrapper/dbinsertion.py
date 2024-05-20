@@ -22,3 +22,17 @@ async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
             {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
         )
         print(f"Chapter '{chapter_title}' inserted into chapters table.")
+
+
+async def fetch_novel_id(conn, novel_title):
+    try:
+        novel_id_query = text("SELECT novel_id FROM novels WHERE title = :title;")
+        result = conn.execute(novel_id_query, {"title": novel_title})
+        row = result.fetchone()
+        if row:
+            return row[0]
+        else:
+            return None
+    except Exception as e:
+        print("Error fetching novel data:", e)
+        return None

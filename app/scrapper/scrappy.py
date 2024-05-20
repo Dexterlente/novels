@@ -1,5 +1,5 @@
 import asyncio
-from app.scrapper.dbinsertion import insert_chapters, novel_insertion_logic
+from app.scrapper.dbinsertion import fetch_novel_id, insert_chapters, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.incrementquery import increment_last_chapter
 from app.scrapper.dbconnection import create_connection
@@ -9,8 +9,19 @@ from sqlalchemy import text
 
 from app.scrapper.tracker import novel_tracker
 
+# async def scrape_synopsis(session, url):
+#         async with session.get(url) as response:
+#             soup = BeautifulSoup(await response.text(), 'html.parser')
+#             summary = soup.find_all(class_='summary__content')
+#             if summary:
+#                 for post in summary:
+#                     for synopsis in post.find_all('p'):
+#                         return(synopsis) 
+
 async def scrape_novel(session, url, novel_title, conn, genre_int, image_url):
     last_chapter = await novel_tracker(conn, novel_title)
+    # synopsis = await scrape_synopsis(session, url)
+    # print("ss",synopsis, "")
   
     chapter_number = (last_chapter or 0) + 1 
     while True:
@@ -50,25 +61,10 @@ async def extract_content(soup):
 async def insert_novel(conn, novel_title, genre_int, image_url):
     await novel_insertion_logic(conn, novel_title, genre_int, image_url)
     conn.commit()
-    print("novel insert sucess")
-
-async def fetch_novel_id(conn, novel_title):
-    try:
-        novel_id_query = text("SELECT novel_id FROM novels WHERE title = :title;")
-        result = conn.execute(novel_id_query, {"title": novel_title})
-        row = result.fetchone()
-        if row:
-            return row[0]
-        else:
-            return None
-    except Exception as e:
-        print("Error fetching novel data:", e)
-        return None
 
 
 async def crawl_page(session, base_url, page_number, genre_int):
     url = f"{base_url}{page_number}/"
-    print(url)
     async with session.get(url) as response:
         if response.status == 404:
             print("404 Not Found. No more pages to crawl. Exiting...")
