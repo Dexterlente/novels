@@ -7,6 +7,7 @@ class novels(db.Model):
     image_url = db.Column(db.String(255))
     title = db.Column(db.String(255))
     genre = db.Column(db.Integer)
+    synopsis = db.Column(db.Text)
     last_chapter = db.Column(db.Integer, default=0)
     chapters = db.relationship('chapters', backref='novel', lazy=True)
 

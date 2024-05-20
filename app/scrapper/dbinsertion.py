@@ -36,3 +36,9 @@ async def fetch_novel_id(conn, novel_title):
     except Exception as e:
         print("Error fetching novel data:", e)
         return None
+
+async def insert_synopsis(conn, synopsis, novel_title):
+        conn.execute(
+            text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title;"),
+            {"synopsis": synopsis, "novel_title": novel_title}
+        )
