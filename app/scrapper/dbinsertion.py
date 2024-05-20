@@ -42,3 +42,5 @@ async def insert_synopsis(conn, synopsis, novel_title):
             text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title;"),
             {"synopsis": synopsis, "novel_title": novel_title}
         )
+
+        print("Synopsis inserted Sucessfully")

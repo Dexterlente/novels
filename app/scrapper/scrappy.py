@@ -1,5 +1,5 @@
 import asyncio
-from app.scrapper.dbinsertion import fetch_novel_id, insert_chapters, novel_insertion_logic
+from app.scrapper.dbinsertion import fetch_novel_id, insert_chapters, insert_synopsis, novel_insertion_logic
 from app.scrapper.elementextractor import element_extractor
 from app.scrapper.extracsynosis import scrape_summary
 from app.scrapper.incrementquery import increment_last_chapter
@@ -13,8 +13,8 @@ from app.scrapper.tracker import novel_tracker
 async def scrape_novel(session, url, novel_title, conn, genre_int, image_url):
     last_chapter = await novel_tracker(conn, novel_title)
     synopsis = await scrape_summary(session, url)
-    print("ss",synopsis, "")
-#   TODO insertion 
+
+    insert_synopsis(conn, synopsis, novel_title )
 
     chapter_number = (last_chapter or 0) + 1 
     while True:
