@@ -1,5 +1,6 @@
    
 from flask import request
+from app.database import db
 
 from app.models import chapters, novels
 from app.pagination import paginate_query
@@ -30,6 +31,12 @@ def get_novels_by_genre_logic(genre):
         'total_items': pagination.total
     }
 
+def get_random_novels_by_genre_logic(genre):
+    
+    random_novels = novels.query.filter_by(genre=genre).order_by(db.func.random()).limit(7).all()
+    serialized_novels = serialize_novels_genre(random_novels)
+    
+    return serialized_novels
 
 def get_novels_by_details_logic(novel_id):
     novel = novels.query.filter_by(novel_id=novel_id).first()
