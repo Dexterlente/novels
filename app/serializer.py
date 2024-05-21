@@ -47,10 +47,10 @@ def serialized_novels_detail(novel, novel_id=None):
     processed_image_url = process_image_url(novel.image_url)
     serialized_novel = {
         'novel_id': novel.novel_id,
-        'image_url': novel.image_url,
         'image_url_cover': processed_image_url,
         'title': novel.title,
         'genre': novel.genre,
+        'synopsis': novel.synopsis,
     }
 
     return serialized_novel
