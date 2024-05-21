@@ -39,7 +39,7 @@ async def fetch_novel_id(conn, novel_title):
 
 async def insert_synopsis(conn, synopsis, novel_title):
         conn.execute(
-            text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title;"),
+            text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title AND synopsis IS NULL;"),
             {"synopsis": synopsis, "novel_title": novel_title}
         )
 
