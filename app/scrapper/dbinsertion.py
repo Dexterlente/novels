@@ -17,12 +17,22 @@ async def novel_insertion_logic(conn, novel_title, genre_int, image_url):
         print("Error inserting novel data:", e)
 
 async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
-        conn.execute(
-            text(f"INSERT INTO chapters (novel_id, title, content) VALUES (:novel_id, :chapter_title, :chapter_content);"),
-            {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
-        )
-        print(f"Chapter '{chapter_title}' inserted into chapters table.")
+    try:
+        existing_chapter_query = text(f"SELECT novel_id FROM chapters WHERE title = :chapter_title;")
+        result = conn.execute(existing_chapter_query, {"novel_id": novel_id, "chapter_title": chapter_title})
+        existing_chapter = result.fetchone()
 
+        if existing_chapter:
+            print(f"Chapter '{chapter_title}' already exists in chapters table.")
+            return
+        else:
+            conn.execute(
+                text(f"INSERT INTO chapters (novel_id, title, content) VALUES (:novel_id, :chapter_title, :chapter_content);"),
+                {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
+            )
+            print(f"Chapter '{chapter_title}' inserted into chapters table.")
+    except Exception as e:
+        print("Error inserting chapter data:", e)
 
 async def fetch_novel_id(conn, novel_title):
     try:
