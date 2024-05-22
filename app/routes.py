@@ -51,3 +51,36 @@ def get_latest_chapters():
 def start_scraping():
     asyncio.run(main())
     return 'Scraping process initiated.'
+
+
+# -- Update the index values
+# UPDATE chapters c
+# SET index = subquery.row_num
+# FROM (
+#     SELECT chapter_id, 
+#            ROW_NUMBER() OVER (PARTITION BY novel_id ORDER BY timestamp) AS row_num
+#     FROM chapters
+# ) AS subquery
+# WHERE c.chapter_id = subquery.chapter_id;
+
+
+
+# TODO 
+# WITH duplicates AS (
+#     SELECT 
+#         chapter_id,
+#         ROW_NUMBER() OVER (PARTITION BY novel_id, title ORDER BY chapter_id) AS row_num
+#     FROM 
+#         chapters
+# )
+# DELETE FROM chapters
+# WHERE (novel_id, title) IN (
+#     SELECT 
+#         novel_id,
+#         title
+#     FROM 
+#         duplicates
+#     WHERE 
+#         title IS NOT NULL
+#         AND row_num > 1
+# );

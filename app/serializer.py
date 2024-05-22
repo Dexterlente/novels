@@ -142,6 +142,7 @@ def serialize_chapters_update_list(chapters_list):
             'novel_id': chapter.novel_id,
             'novel_title': chapter.novel.title,
             'chapter_title': chapter.title,
+            'chapter_number': chapter.index,
             'timestamp': chapter.timestamp,
         }
         serialized_chapters.append(serialized_chapter)
