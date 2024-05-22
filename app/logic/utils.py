@@ -4,7 +4,7 @@ from app.database import db
 
 from app.models import chapters, novels
 from app.pagination import paginate_query
-from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre, serialized_novels_detail
+from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre, serialize_novels_genre_random, serialized_novels_detail
 
 
 def get_novels_logic():
@@ -34,9 +34,17 @@ def get_novels_by_genre_logic(genre):
 def get_random_novels_by_genre_logic(genre):
     
     random_novels = novels.query.filter_by(genre=genre).order_by(db.func.random()).limit(7).all()
-    serialized_novels = serialize_novels_genre(random_novels)
+    serialized_novels = serialize_novels_genre_random(random_novels)
     
     return serialized_novels
+
+def get_single_random_novel_by_genre_logic(genre):
+    random_novel = novels.query.filter_by(genre=genre).order_by(db.func.random()).first()
+    if random_novel:
+        serialized_novel = serialize_novels_genre_random([random_novel])
+        return serialized_novel[0]
+    else:
+        return {'error': 'No novels found in this genre'}
 
 def get_novels_by_details_logic(novel_id):
     novel = novels.query.filter_by(novel_id=novel_id).first()

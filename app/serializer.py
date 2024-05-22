@@ -42,6 +42,24 @@ def serialize_novels_genre(novel_list_genre):
         serialize_novels_genres.append(serialize_novels_genre)
     return serialize_novels_genres
 
+def serialize_novels_genre_random(novel_list_genre):
+
+    serialize_novels_genres = []
+
+    for novels in novel_list_genre:
+        processed_image_url = process_image_url(novels.image_url)
+
+        serialize_novels_genre = {
+            'novel_id': novels.novel_id,
+            'image_url': novels.image_url,
+            'image_url_cover': processed_image_url,
+            'title': novels.title,
+            'genre': novels.genre,
+            'synopsis': novels.synopsis,
+        }
+        serialize_novels_genres.append(serialize_novels_genre)
+    return serialize_novels_genres
+
 def serialized_novels_detail(novel, novel_id=None):
 
     processed_image_url = process_image_url(novel.image_url)
