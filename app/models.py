@@ -22,6 +22,7 @@ class chapters(db.Model):
     title = db.Column(db.Text)
     content = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=db.func.now())
+    index = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Chapter {}>'.format(self.title)

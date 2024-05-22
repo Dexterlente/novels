@@ -127,3 +127,23 @@ def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
     }
 
     return serialized_chapter
+
+def serialize_chapters_update_list(chapters_list):
+    """
+    Serialize a list of chapters objects into a list of dictionary representations.
+    all latest chapters on the chapter db is rendered here
+    """
+    serialized_chapters = []
+    
+    for chapter in chapters_list:
+
+        serialized_chapter = {
+            'chapter_id': chapter.chapter_id,
+            'novel_id': chapter.novel_id,
+            'novel_title': chapter.novel.title,
+            'chapter_title': chapter.title,
+            'timestamp': chapter.timestamp,
+        }
+        serialized_chapters.append(serialized_chapter)
+
+    return serialized_chapters
