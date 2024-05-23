@@ -34,9 +34,9 @@ async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
             new_index = 1
         else:
             new_index = last_chapter
-        
+            print(f"new chapter number {new_index}")
             conn.execute(
-                text(f"INSERT INTO chapters (novel_id, title, content, index) VALUES (:novel_id, :chapter_title, :chapter_content, :index));"),
+                text(f"INSERT INTO chapters (novel_id, title, content, index) VALUES (:novel_id, :chapter_title, :chapter_content, :index);"),
                 {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content, "index": new_index}
             )
             print(f"Chapter '{chapter_title}' inserted into chapters table.")
