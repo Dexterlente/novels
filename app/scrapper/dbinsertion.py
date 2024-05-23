@@ -17,6 +17,7 @@ async def novel_insertion_logic(conn, novel_title, genre_int, image_url):
         print("Error inserting novel data:", e)
 
 async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
+    # wards
     try:
         existing_chapter_query = text(f"SELECT novel_id FROM chapters WHERE title = :chapter_title;")
         result = conn.execute(existing_chapter_query, {"novel_id": novel_id, "chapter_title": chapter_title})
@@ -25,10 +26,18 @@ async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
         if existing_chapter:
             print(f"Chapter '{chapter_title}' already exists in chapters table.")
             return
+        
+        last_chapter_query = text("SELECT last_chapter FROM novels WHERE novel_id = :novel_id")
+        last_chapter = conn.execute(last_chapter_query, {"novel_id": novel_id}).fetchone()[0]
+
+        if last_chapter is None:
+            new_index = 1
         else:
+            new_index = last_chapter
+        
             conn.execute(
-                text(f"INSERT INTO chapters (novel_id, title, content) VALUES (:novel_id, :chapter_title, :chapter_content);"),
-                {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content}
+                text(f"INSERT INTO chapters (novel_id, title, content, index) VALUES (:novel_id, :chapter_title, :chapter_content, :index));"),
+                {"novel_id": novel_id, "chapter_title": chapter_title, "chapter_content": chapter_content, "index": new_index}
             )
             print(f"Chapter '{chapter_title}' inserted into chapters table.")
     except Exception as e:
