@@ -82,13 +82,16 @@ def get_latest_chapters_logic():
     return result
 
 def get_novel_search_logic(query):
-    page_number = request.args.get('page', 1, type=int)
-    per_page = 30
-    pagination = paginate_query(novels.query.filter(novels.title.like(f"%{query}%")), page_number, per_page)
-    serialized_novels = serialized_novels_search(pagination.items)
-    return {
-        'novels': serialized_novels, 
-        'total_pages': pagination.pages,
-        'current_page': pagination.page,
-        'total_items': pagination.total
-    }
+    if query:
+        page_number = request.args.get('page', 1, type=int)
+        per_page = 30
+        pagination = paginate_query(novels.query.filter(novels.title.like(f"%{query}%")), page_number, per_page)
+        serialized_novels = serialized_novels_search(pagination.items)
+        return {
+            'novels': serialized_novels, 
+            'total_pages': pagination.pages,
+            'current_page': pagination.page,
+            'total_items': pagination.total
+        }
+    else:
+        None
