@@ -48,9 +48,16 @@ async def fetch_novel_id(conn, novel_title):
         return None
 
 async def insert_synopsis(conn, synopsis, novel_title):
-        conn.execute(
-            text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title AND synopsis IS NULL;"),
-            {"synopsis": synopsis, "novel_title": novel_title}
-        )
+        synopsis_query = text("SELECT title FROM novels WHERE synopsis IS NULL;")
+        result = conn.execute(synopsis_query, {"title": novel_title})
+        nulledSynopsis = result.fetchone()
 
-        print("Synopsis inserted Sucessfully")
+        if nulledSynopsis:
+            conn.execute(
+                text(f"UPDATE novels SET synopsis = :synopsis WHERE title = :novel_title AND synopsis IS NULL;"),
+                {"synopsis": synopsis, "novel_title": novel_title}
+            )
+            print("Synopsis inserted Sucessfully")
+        else:
+            print('already have synopsis')
+            return
