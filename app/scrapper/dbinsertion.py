@@ -33,7 +33,7 @@ async def insert_chapters(conn, novel_id,chapter_title, chapter_content):
         if last_chapter is None:
             new_index = 1
         else:
-            new_index = last_chapter
+            new_index = last_chapter + 1
             print(f"new chapter number {new_index}")
             conn.execute(
                 text(f"INSERT INTO chapters (novel_id, title, content, index) VALUES (:novel_id, :chapter_title, :chapter_content, :index);"),
