@@ -148,3 +148,19 @@ def serialize_chapters_update_list(chapters_list):
         serialized_chapters.append(serialized_chapter)
 
     return serialized_chapters
+
+
+def serialized_novels_search(query):
+    serialized_novels = []
+    for q in query:
+        processed_image_url = process_image_url(q.image_url)
+        serialized_novel = {
+            'novel_id': q.novel_id,
+            'image_url_cover': processed_image_url,
+            'title': q.title,
+            'genre': q.genre,
+            'synopsis': q.synopsis,
+        }
+        serialized_novels.append(serialized_novel)
+
+    return serialized_novels
