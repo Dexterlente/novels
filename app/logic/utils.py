@@ -95,3 +95,11 @@ def get_novel_search_logic(query):
         }
     else:
         None
+
+def get_novel_search_details_logic(novel_id):
+    novel = novels.query.filter_by(novel_id=novel_id).first()
+    if novel:
+        serialized_novel = serialized_novels_detail(novel)
+        return serialized_novel
+    else:
+         return {'error': 'novel not found'}, 404

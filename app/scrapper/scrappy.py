@@ -119,7 +119,7 @@ async def main():
         "harem": 7
     }
     genres = ["action","comedy", "adventure", "drama", "eastern", "fantasy", "harem"]
-    start_index = genres.index("comedy") 
+    start_index = genres.index("action") 
     for genre in genres[start_index:]:
         genre_int = genre_mapping.get(genre)
         base_url = f"https://boxnovel.com/manga-genre/{genre}/page/"
