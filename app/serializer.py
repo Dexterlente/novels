@@ -38,6 +38,7 @@ def serialize_novels_genre(novel_list_genre):
             'image_url_cover': processed_image_url,
             'title': novels.title,
             'genre': novels.genre,
+            'synopsis': novels.synopsis,
         }
         serialize_novels_genres.append(serialize_novels_genre)
     return serialize_novels_genres

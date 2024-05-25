@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, request
 from app.logic.utils import get_chapter_details_logic, get_chapters_logic, get_latest_chapters_logic, get_novel_search_details_logic, get_novel_search_logic, get_novels_by_details_logic, get_novels_by_genre_logic, get_novels_logic, get_random_novels_by_genre_logic, get_single_random_novel_by_genre_logic
 from app.pagination import paginate_query
 from app.scrapper.scrappy import main
-from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_novels, serialize_novels_genre
 
 routes = Blueprint('views', __name__)
 
