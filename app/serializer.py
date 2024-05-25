@@ -125,6 +125,7 @@ def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
         'timestamp': chapter.timestamp,
         'title': chapter.title,
         'content': chapter.content,
+        'index': chapter.index,
     }
 
     return serialized_chapter
