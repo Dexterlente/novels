@@ -1,6 +1,6 @@
 import asyncio
 from flask import Blueprint, jsonify, request
-from app.logic.utils import get_chapter_details_logic, get_chapters_logic, get_latest_chapters_logic, get_novel_search_details_logic, get_novel_search_logic, get_novels_by_details_logic, get_novels_by_genre_logic, get_novels_logic, get_random_novels_by_genre_logic, get_single_random_novel_by_genre_logic
+from app.logic.utils import get_all_chapters_logic, get_chapter_details_logic, get_chapters_logic, get_latest_chapters_logic, get_novel_search_details_logic, get_novel_search_logic, get_novels_by_details_logic, get_novels_by_genre_logic, get_novels_logic, get_random_novels_by_genre_logic, get_single_random_novel_by_genre_logic
 from app.pagination import paginate_query
 from app.scrapper.scrappy import main
 
@@ -34,6 +34,11 @@ def get_novels_novel(novel_id):
 @routes.route('/get-chapters/<int:novel_id>', methods=['GET'])
 def get_chapters(novel_id):
     result = get_chapters_logic(novel_id)
+    return jsonify(result)
+
+@routes.route('/get-all-chapters/<int:novel_id>', methods=['GET'])
+def get_all_chapters(novel_id):
+    result = get_all_chapters_logic(novel_id)
     return jsonify(result)
 
 @routes.route('/get-chapters/<int:novel_id>/<int:chapter_id>', methods=['GET'])

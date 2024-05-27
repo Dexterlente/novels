@@ -102,6 +102,30 @@ def serialize_chapters(chapters_list, novel_id=None):
 
     return serialized_chapters
 
+
+def serialize_all_chapters(chapters_list, novel_id=None):
+    """
+    Serialize a list of chapters objects into a list of dictionary representations.
+    If novel_id is provided, only chapters belonging to that novel will be included.
+    """
+    serialized_chapters = []
+
+    
+    for chapter in chapters_list:
+        if novel_id is not None and chapter.novel_id != novel_id:
+            continue
+
+
+        serialized_chapter = {
+            'chapter_id': chapter.chapter_id,
+            'novel_id': chapter.novel_id,
+            'chapter_number': chapter.index
+        }
+        serialized_chapters.append(serialized_chapter)
+
+    return serialized_chapters
+
+
 def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
     """
     Serialize details of a specific chapter into a dictionary representation.

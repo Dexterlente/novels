@@ -5,7 +5,7 @@ from app.database import db
 
 from app.models import chapters, novels
 from app.pagination import paginate_query
-from app.serializer import serialize_chapter_detail, serialize_chapters, serialize_chapters_update_list, serialize_novels, serialize_novels_genre, serialize_novels_genre_random, serialized_novels_detail, serialized_novels_search
+from app.serializer import serialize_all_chapters, serialize_chapter_detail, serialize_chapters, serialize_chapters_update_list, serialize_novels, serialize_novels_genre, serialize_novels_genre_random, serialized_novels_detail, serialized_novels_search
 
 
 def get_novels_logic():
@@ -68,6 +68,17 @@ def get_chapters_logic(novel_id):
         'current_page': pagination.page,
         'total_items': pagination.total
     }
+
+def get_all_chapters_logic(novel_id):
+    query = chapters.query.filter_by(novel_id=novel_id).order_by(desc(chapters.timestamp))
+
+    serialize_chapters = serialize_all_chapters(query)
+
+    return {
+        'all_chapters' : serialize_chapters
+    }
+    
+
 
 def get_chapter_details_logic(novel_id, chapter_id):
     chapter = chapters.query.filter_by(novel_id=novel_id, chapter_id=chapter_id).first()
