@@ -19,3 +19,10 @@ if __name__ == '__main__':
 DELETE FROM chapters
 WHERE (novel_id, chapter_id) IN (SELECT novel_id, chapter_id FROM chapters_to_delete);
 """
+
+"""UPDATE novels AS n
+SET last_chapter = (
+    SELECT MAX(index)
+    FROM chapters AS c
+    WHERE c.novel_id = n.novel_id
+)"""
