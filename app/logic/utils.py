@@ -1,5 +1,6 @@
    
 from flask import request
+from sqlalchemy import desc
 from app.database import db
 
 from app.models import chapters, novels
@@ -58,7 +59,7 @@ def get_novels_by_details_logic(novel_id):
 def get_chapters_logic(novel_id):
     page_number = request.args.get('page', 1, type=int)
     per_page = 50
-    pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id), page_number, per_page)
+    pagination = paginate_query(chapters.query.filter_by(novel_id=novel_id).order_by(desc(chapters.timestamp)), page_number, per_page)
     serialized_chapters = serialize_chapters(pagination.items)
 
     return {
