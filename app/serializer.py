@@ -126,7 +126,6 @@ def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
     else:
         print("No previous chapter found")
 
-    print(novel_id, chapter_id, "sdads")
     serialized_chapter = {
         'chapter_id': chapter.chapter_id,
         'novel_id': chapter.novel_id,
