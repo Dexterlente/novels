@@ -70,8 +70,9 @@ def get_chapters_logic(novel_id):
 
 def get_chapter_details_logic(novel_id, chapter_id):
     chapter = chapters.query.filter_by(novel_id=novel_id, chapter_id=chapter_id).first()
+
     if chapter:
-        serialized_chapter = serialize_chapter_detail(chapter)
+        serialized_chapter = serialize_chapter_detail(chapter,novel_id,chapter_id)
         return serialized_chapter
     else:
          return {'error': 'Chapter not found'}, 404

@@ -1,4 +1,7 @@
 
+from app.models import chapters
+
+
 def process_image_url(url):
         if url.endswith("-110x150.jpg"):
             return url.replace("-110x150.jpg", ".jpg")
@@ -118,7 +121,21 @@ def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
 
     if chapter_id is not None and chapter.chapter_id != chapter_id:
         return None  # Chapter does not have the specified chapter_id
+    
+    next_chapter = chapters.query.filter_by(novel_id=novel_id, index=chapter.index + 1).first()
+    if next_chapter:
+        print(f"Next chapter found: {next_chapter.chapter_id}")
+    else:
+        print("No next chapter found")
 
+    # Fetch the previous chapter based on the index
+    previous_chapter = chapters.query.filter_by(novel_id=novel_id, index=chapter.index - 1).first()
+    if previous_chapter:
+        print(f"Previous chapter found: {previous_chapter.chapter_id}")
+    else:
+        print("No previous chapter found")
+
+    print(novel_id, chapter_id, "sdads")
     serialized_chapter = {
         'chapter_id': chapter.chapter_id,
         'novel_id': chapter.novel_id,
@@ -126,6 +143,8 @@ def serialize_chapter_detail(chapter, novel_id=None, chapter_id=None):
         'title': chapter.title,
         'content': chapter.content,
         'index': chapter.index,
+        'next_chapter_id': next_chapter.chapter_id if next_chapter else None,
+        'previous_chapter_id': previous_chapter.chapter_id if previous_chapter else None
     }
 
     return serialized_chapter
